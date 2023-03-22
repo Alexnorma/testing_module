@@ -1,0 +1,202 @@
+Sending build context to Docker daemon  17.92kB
+Step 1/24 : FROM alpine:3.12
+ ---> 24c8ece58a1a
+Step 2/24 : ADD https://packages.whatwedo.ch/php-alpine.rsa.pub /etc/apk/keys/php-alpine.rsa.pub
+
+
+ ---> 27afd4c5da6b
+Step 3/24 : RUN apk --update add ca-certificates
+ ---> Running in 2634adb1aeb6
+fetch http://dl-cdn.alpinelinux.org/alpine/v3.12/main/x86_64/APKINDEX.tar.gz
+fetch http://dl-cdn.alpinelinux.org/alpine/v3.12/community/x86_64/APKINDEX.tar.gz
+(1/1) Installing ca-certificates (20220614-r0)
+Executing busybox-1.31.1-r22.trigger
+Executing ca-certificates-20220614-r0.trigger
+OK: 6 MiB in 15 packages
+Removing intermediate container 2634adb1aeb6
+ ---> 767c8e02b153
+Step 4/24 : RUN apk add --no-cache  --repository http://dl-cdn.alpinelinux.org/alpine/edge/community php
+ ---> Running in c163e3aa7c76
+fetch http://dl-cdn.alpinelinux.org/alpine/edge/community/x86_64/APKINDEX.tar.gz
+fetch http://dl-cdn.alpinelinux.org/alpine/v3.12/main/x86_64/APKINDEX.tar.gz
+fetch http://dl-cdn.alpinelinux.org/alpine/v3.12/community/x86_64/APKINDEX.tar.gz
+(1/9) Installing php81-common (8.1.17-r0)
+(2/9) Installing argon2-libs (20190702-r1)
+(3/9) Installing ncurses-terminfo-base (6.2_p20200523-r1)
+(4/9) Installing ncurses-libs (6.2_p20200523-r1)
+(5/9) Installing libedit (20191231.3.1-r0)
+(6/9) Installing pcre2 (10.35-r0)
+(7/9) Installing xz-libs (5.2.5-r1)
+(8/9) Installing libxml2 (2.9.14-r0)
+(9/9) Installing php81 (8.1.17-r0)
+Executing busybox-1.31.1-r22.trigger
+OK: 17 MiB in 24 packages
+Removing intermediate container c163e3aa7c76
+ ---> 51fb87a77cb9
+Step 5/24 : RUN apk --no-cache add php php-fpm php-opcache php-openssl php-curl     nginx supervisor curl openrc python3
+ ---> Running in 95dd2a70c779
+fetch http://dl-cdn.alpinelinux.org/alpine/v3.12/main/x86_64/APKINDEX.tar.gz
+fetch http://dl-cdn.alpinelinux.org/alpine/v3.12/community/x86_64/APKINDEX.tar.gz
+(1/26) Installing nghttp2-libs (1.41.0-r0)
+(2/26) Installing libcurl (7.79.1-r1)
+(3/26) Installing curl (7.79.1-r1)
+(4/26) Installing pcre (8.44-r0)
+(5/26) Installing nginx (1.18.0-r3)
+Executing nginx-1.18.0-r3.pre-install
+(6/26) Installing openrc (0.42.1-r14)
+Executing openrc-0.42.1-r14.post-install
+(7/26) Installing php7-common (7.3.33-r0)
+(8/26) Installing php7-curl (7.3.33-r0)
+(9/26) Installing php7-fpm (7.3.33-r0)
+(10/26) Installing php7-opcache (7.3.33-r0)
+(11/26) Installing php7-openssl (7.3.33-r0)
+(12/26) Installing libbz2 (1.0.8-r1)
+(13/26) Installing expat (2.2.10-r4)
+(14/26) Installing libffi (3.3-r2)
+(15/26) Installing gdbm (1.13-r1)
+(16/26) Installing readline (8.0.4-r0)
+(17/26) Installing sqlite-libs (3.32.1-r1)
+(18/26) Installing python3 (3.8.10-r0)
+(19/26) Installing py3-meld3 (2.0.1-r0)
+(20/26) Installing py3-ordered-set (4.0.1-r0)
+(21/26) Installing py3-appdirs (1.4.4-r1)
+(22/26) Installing py3-parsing (2.4.7-r0)
+(23/26) Installing py3-six (1.15.0-r0)
+(24/26) Installing py3-packaging (20.4-r0)
+(25/26) Installing py3-setuptools (47.0.0-r0)
+(26/26) Installing supervisor (4.2.0-r0)
+Executing busybox-1.31.1-r22.trigger
+OK: 81 MiB in 50 packages
+Removing intermediate container 95dd2a70c779
+ ---> 17a4628cddf2
+Step 6/24 : COPY config/nginx.conf /etc/nginx/nginx.conf
+ ---> 280b9f169bf7
+Step 7/24 : RUN rm /etc/nginx/conf.d/default.conf
+ ---> Running in e460112947a7
+Removing intermediate container e460112947a7
+ ---> a2d5a3e1c5bf
+Step 8/24 : COPY config/fpm-pool.conf /etc/php7/php-fpm.d/www.conf
+ ---> 4bd624f1bb5e
+Step 9/24 : COPY config/php.ini /etc/php7/conf.d/custom.ini
+ ---> 58e98358d30c
+Step 10/24 : COPY config/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+ ---> b9a9a491881c
+Step 11/24 : RUN mkdir -p /var/www/html
+ ---> Running in 16d0579780be
+Removing intermediate container 16d0579780be
+ ---> 35d5fa9d703e
+Step 12/24 : RUN mkdir -p /etc/nginx/test
+ ---> Running in 2fd967e3c0e5
+Removing intermediate container 2fd967e3c0e5
+ ---> 8bdd5558691b
+Step 13/24 : RUN python3 -m ensurepip
+ ---> Running in f4a2da9cda17
+Looking in links: /tmp/tmpgy5756st
+Requirement already satisfied: setuptools in /usr/lib/python3.8/site-packages (47.0.0)
+Processing /tmp/tmpgy5756st/pip-21.1.1-py3-none-any.whl
+Installing collected packages: pip
+Successfully installed pip-21.1.1
+[91mWARNING: Running pip as root will break packages and permissions. You should install packages reliably by using venv: https://pip.pypa.io/warnings/venv
+[0mRemoving intermediate container f4a2da9cda17
+ ---> 6978d021836f
+Step 14/24 : RUN pip3 install --no-cache --upgrade pip setuptools
+ ---> Running in fc1aef9bf4f9
+Requirement already satisfied: pip in /usr/lib/python3.8/site-packages (21.1.1)
+Collecting pip
+  Downloading pip-23.0.1-py3-none-any.whl (2.1 MB)
+Requirement already satisfied: setuptools in /usr/lib/python3.8/site-packages (47.0.0)
+Collecting setuptools
+  Downloading setuptools-67.6.0-py3-none-any.whl (1.1 MB)
+Installing collected packages: setuptools, pip
+  Attempting uninstall: setuptools
+    Found existing installation: setuptools 47.0.0
+    Uninstalling setuptools-47.0.0:
+      Successfully uninstalled setuptools-47.0.0
+  Attempting uninstall: pip
+    Found existing installation: pip 21.1.1
+    Uninstalling pip-21.1.1:
+      Successfully uninstalled pip-21.1.1
+Successfully installed pip-23.0.1 setuptools-67.6.0
+[91mWARNING: Running pip as root will break packages and permissions. You should install packages reliably by using venv: https://pip.pypa.io/warnings/venv
+[0mRemoving intermediate container fc1aef9bf4f9
+ ---> 9063d4d3c086
+Step 15/24 : RUN pip3 install --no-cache-dir pytest-testinfra
+ ---> Running in 4a0761c91764
+Collecting pytest-testinfra
+  Downloading pytest_testinfra-7.0.0-py3-none-any.whl (73 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 73.5/73.5 kB 1.9 MB/s eta 0:00:00
+Collecting pytest!=3.0.2
+  Downloading pytest-7.2.2-py3-none-any.whl (317 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 317.2/317.2 kB 5.7 MB/s eta 0:00:00
+Collecting iniconfig
+  Downloading iniconfig-2.0.0-py3-none-any.whl (5.9 kB)
+Requirement already satisfied: packaging in /usr/lib/python3.8/site-packages (from pytest!=3.0.2->pytest-testinfra) (20.4)
+Collecting exceptiongroup>=1.0.0rc8
+  Downloading exceptiongroup-1.1.1-py3-none-any.whl (14 kB)
+Collecting attrs>=19.2.0
+  Downloading attrs-22.2.0-py3-none-any.whl (60 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 60.0/60.0 kB 29.7 MB/s eta 0:00:00
+Collecting tomli>=1.0.0
+  Downloading tomli-2.0.1-py3-none-any.whl (12 kB)
+Collecting pluggy<2.0,>=0.12
+  Downloading pluggy-1.0.0-py2.py3-none-any.whl (13 kB)
+Requirement already satisfied: pyparsing>=2.0.2 in /usr/lib/python3.8/site-packages (from packaging->pytest!=3.0.2->pytest-testinfra) (2.4.7)
+Requirement already satisfied: six in /usr/lib/python3.8/site-packages (from packaging->pytest!=3.0.2->pytest-testinfra) (1.15.0)
+Installing collected packages: tomli, pluggy, iniconfig, exceptiongroup, attrs, pytest, pytest-testinfra
+Successfully installed attrs-22.2.0 exceptiongroup-1.1.1 iniconfig-2.0.0 pluggy-1.0.0 pytest-7.2.2 pytest-testinfra-7.0.0 tomli-2.0.1
+[91mWARNING: Running pip as the 'root' user can result in broken permissions and conflicting behaviour with the system package manager. It is recommended to use a virtual environment instead: https://pip.pypa.io/warnings/venv
+[0mRemoving intermediate container 4a0761c91764
+ ---> 6625e559aaec
+Step 16/24 : COPY test.py /etc/nginx/test
+ ---> 324007bc9f05
+Step 17/24 : RUN chown -R nobody.nobody /var/www/html &&   chown -R nobody.nobody /run &&   chown -R nobody.nobody /var/lib/nginx &&   chown -R nobody.nobody /var/log/nginx
+ ---> Running in 267c349b5afe
+Removing intermediate container 267c349b5afe
+ ---> d49e501572be
+Step 18/24 : USER nobody
+ ---> Running in 3bf5f585bda0
+Removing intermediate container 3bf5f585bda0
+ ---> 90032f46c858
+Step 19/24 : WORKDIR /var/www/html
+ ---> Running in a233fcfb485a
+Removing intermediate container a233fcfb485a
+ ---> 73acd18d5dd2
+Step 20/24 : COPY --chown=nobody src/ /var/www/html/
+ ---> 9556edd67d89
+Step 21/24 : EXPOSE 8080
+ ---> Running in 8fdeb8187e1a
+Removing intermediate container 8fdeb8187e1a
+ ---> 9e0a8543e28b
+Step 22/24 : CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]
+ ---> Running in bfb84368a334
+Removing intermediate container bfb84368a334
+ ---> 138dfb6546f4
+Step 23/24 : HEALTHCHECK --timeout=10s CMD curl --silent --fail http://127.0.0.1:8080/fpm-ping
+ ---> Running in 5bcbf119a1df
+Removing intermediate container 5bcbf119a1df
+ ---> e1398eb73542
+Step 24/24 : RUN pytest /etc/nginx/test/test.py
+ ---> Running in 90569c6ecf58
+============================= test session starts ==============================
+platform linux -- Python 3.8.10, pytest-7.2.2, pluggy-1.0.0
+rootdir: /etc/nginx/test
+plugins: testinfra-7.0.0
+collected 2 items
+
+../../../etc/nginx/test/test.py ..                                       [100%]
+
+=============================== warnings summary ===============================
+../../../usr/lib/python3.8/site-packages/_pytest/cacheprovider.py:432
+  /usr/lib/python3.8/site-packages/_pytest/cacheprovider.py:432: PytestCacheWarning: could not create cache path /etc/nginx/test/.pytest_cache/v/cache/nodeids
+    config.cache.set("cache/nodeids", sorted(self.cached_nodeids))
+
+../../../usr/lib/python3.8/site-packages/_pytest/stepwise.py:56
+  /usr/lib/python3.8/site-packages/_pytest/stepwise.py:56: PytestCacheWarning: could not create cache path /etc/nginx/test/.pytest_cache/v/cache/stepwise
+    session.config.cache.set(STEPWISE_CACHE_DIR, [])
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+======================== 2 passed, 2 warnings in 0.06s =========================
+Removing intermediate container 90569c6ecf58
+ ---> 749400ebc45d
+Successfully built 749400ebc45d
+Successfully tagged skillbox:skillbox
